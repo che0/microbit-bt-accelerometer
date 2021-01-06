@@ -1,0 +1,11 @@
+{
+  "name": "microbit-btsensor",
+  "version": "0.0.1",
+  "description": "BTLE sensor thingy",
+  "license": "MIT",
+  "dependencies": {
+    "microbit": "lancaster-university/microbit#v2.1.1"
+  },
+  "targetDependencies": {},
+  "bin": "./src"
+}
