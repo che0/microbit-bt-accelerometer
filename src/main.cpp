@@ -52,20 +52,31 @@ void onButtonA(MicroBitEvent)
 void onButtonB(MicroBitEvent)
 {
     if (!accelerometerDisplay) {
+        uBit.display.clear();
+        for (int i = 0; i < 255; i += 16)
+        {
+            uBit.display.image.setPixelValue(2, 2, i);
+            uBit.sleep(20);
+        }
         uBit.messageBus.listen(MICROBIT_ID_ACCELEROMETER, MICROBIT_ACCELEROMETER_EVT_DATA_UPDATE, onAccelerometer);
-        uBit.sleep(400);
     }
     else
     {
         uBit.messageBus.ignore(MICROBIT_ID_ACCELEROMETER, MICROBIT_ACCELEROMETER_EVT_DATA_UPDATE, onAccelerometer);
-        flashLetter("Q");
+        for (int i = 0; i < 3; i++)
+        {
+            uBit.display.clear();
+            uBit.display.image.setPixelValue(2, 2 + i, 255 - i * 24);
+            uBit.sleep(100);
+        }
+        uBit.display.clear();
     }
     accelerometerDisplay = !accelerometerDisplay;
 }
 
 int main()
 {
-    // Initialise the micro:bit runtime.
+    // Initialise the micro:bit runtime and stuff.
     uBit.init();
 
     uBit.messageBus.listen(MICROBIT_ID_BLE, MICROBIT_BLE_EVT_CONNECTED, onConnected);
@@ -77,12 +88,22 @@ int main()
 
     accelerometerService = new MicroBitAccelerometerService(*uBit.ble, uBit.accelerometer);
 
-    // show a smiley with bright eyes!
-    MicroBitImage smiley("0,255,0,255, 0\n0,255,0,255,0\n0,0,0,0,0\n32,0,0,0,32\n0,32,32,32,0\n");
-    uBit.display.setDisplayMode(DISPLAY_MODE_GREYSCALE);
+    // Welcome heart
+    uBit.display.setDisplayMode(DISPLAY_MODE_BLACK_AND_WHITE);
+    uBit.display.setBrightness(0);
+    MicroBitImage smiley("0,255,0,255, 0\n255,255,255,255,255\n255,255,255,255,255\n0,255,255,255,0\n0,0,255,0,0\n");
     uBit.display.print(smiley);
-    uBit.sleep(600);
+    for (int i = 0; i < 5; i++) {
+        uBit.display.setBrightness(16 * i);
+        uBit.sleep(70);
+    }
+    for (int i = 0; i < 5; i++) {
+        uBit.display.setBrightness(64 - 16 * i);
+        uBit.sleep(100);
+    }
     uBit.display.clear();
+    uBit.display.setBrightness(255);
+    uBit.display.setDisplayMode(DISPLAY_MODE_GREYSCALE);
 
     release_fiber();
 }
