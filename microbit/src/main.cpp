@@ -5,7 +5,7 @@
 MicroBit uBit;
 MicroBitAccelerometerService *accelerometerService;
 
-int connected = 0;
+int bluetoothConnection = 0;
 int accelerometerDisplay = 0;
 
 static void flashLetter(const char * letter)
@@ -15,16 +15,15 @@ static void flashLetter(const char * letter)
     uBit.display.clear();
 }
 
-void onConnected(MicroBitEvent)
+void onBluetoothConnect(MicroBitEvent)
 {
-
-    connected = 1;
+    bluetoothConnection = 1;
     flashLetter("C");
 }
 
-void onDisconnected(MicroBitEvent)
+void onBluetoothDisconnect(MicroBitEvent)
 {
-    connected = 0;
+    bluetoothConnection = 0;
     flashLetter("D");
 }
 
@@ -46,7 +45,7 @@ void onAccelerometer(MicroBitEvent)
 
 void onButtonA(MicroBitEvent)
 {
-    flashLetter(connected ? "C" : "D");
+    flashLetter(bluetoothConnection ? "C" : "D");
 }
 
 void onButtonB(MicroBitEvent)
@@ -79,8 +78,8 @@ int main()
     // Initialise the micro:bit runtime and stuff.
     uBit.init();
 
-    uBit.messageBus.listen(MICROBIT_ID_BLE, MICROBIT_BLE_EVT_CONNECTED, onConnected);
-    uBit.messageBus.listen(MICROBIT_ID_BLE, MICROBIT_BLE_EVT_DISCONNECTED, onDisconnected);
+    uBit.messageBus.listen(MICROBIT_ID_BLE, MICROBIT_BLE_EVT_CONNECTED, onBluetoothConnect);
+    uBit.messageBus.listen(MICROBIT_ID_BLE, MICROBIT_BLE_EVT_DISCONNECTED, onBluetoothDisconnect);
     uBit.messageBus.listen(MICROBIT_ID_BUTTON_A, MICROBIT_BUTTON_EVT_CLICK, onButtonA);
     uBit.messageBus.listen(MICROBIT_ID_BUTTON_B, MICROBIT_BUTTON_EVT_CLICK, onButtonB);
 
@@ -91,8 +90,8 @@ int main()
     // Welcome heart
     uBit.display.setDisplayMode(DISPLAY_MODE_BLACK_AND_WHITE);
     uBit.display.setBrightness(0);
-    MicroBitImage smiley("0,255,0,255, 0\n255,255,255,255,255\n255,255,255,255,255\n0,255,255,255,0\n0,0,255,0,0\n");
-    uBit.display.print(smiley);
+    MicroBitImage heart("0,255,0,255, 0\n255,255,255,255,255\n255,255,255,255,255\n0,255,255,255,0\n0,0,255,0,0\n");
+    uBit.display.print(heart);
     for (int i = 0; i < 5; i++) {
         uBit.display.setBrightness(16 * i);
         uBit.sleep(70);
