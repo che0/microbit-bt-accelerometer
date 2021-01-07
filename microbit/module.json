@@ -1,7 +1,7 @@
 {
-  "name": "microbit-btsensor",
-  "version": "0.0.1",
-  "description": "BTLE sensor thingy",
+  "name": "microbit-bt-accelerometer",
+  "version": "0.0.2",
+  "description": "displays accelerometer data and exports them via Bluetooth",
   "license": "MIT",
   "dependencies": {
     "microbit": "lancaster-university/microbit#v2.1.1"
