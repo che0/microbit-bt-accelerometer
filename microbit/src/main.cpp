@@ -38,7 +38,7 @@ void onAccelerometer(MicroBitEvent)
     for (int px = 0; px < 5; px++) for (int py = 0; py < 5; py++)
     {
         int distanceCu = (px - 2) * (px - 2) + (py - 2) * (py - 2);
-        int brightness = activity / ((distanceCu > 0) ? distanceCu : 1);
+        int brightness = activity / ((distanceCu > 0) ? distanceCu : 0.3);
         uBit.display.image.setPixelValue(px, py, brightness > 255 ? 255 : brightness);
     }
 }
