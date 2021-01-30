@@ -10,16 +10,41 @@ MB_ACCELEROMETER_PERIOD_UUID = 'e95dfb24-251d-470a-a062-fa1922dfa9a8'
 
 
 class AccelerometerDelegate(bluepy.btle.DefaultDelegate):
-    def __init__(self, accelerometerDataHandle):
+    def __init__(self, accelerometerDataHandle, dataCallback):
         super(AccelerometerDelegate, self).__init__()
         self.accelerometerDataHandle = accelerometerDataHandle
+        self.dataCallback = dataCallback
 
     def handleNotification(self, cHandle, data):
         if cHandle != self.accelerometerDataHandle:
             return
 
         x, y, z = struct.unpack('<hhh', data)
+        self.dataCallback(x, y, z)
+
+
+class MicrobitAccelerometer:
+    def __init__(self, mac):
+        self.mac = mac
+        self.microbit = None
+
+    def processData(self, x, y, z):
         print(x, y, z)
+
+    def setNotifications(self):
+        self.microbit = bluepy.btle.Peripheral(self.mac, 'random')
+
+        acc_service = self.microbit.getServiceByUUID(MB_ACCELEROMETER_SERVICE_UUID)
+        acc_data = acc_service.getDescriptors(MB_ACCELEROMETER_DATA_UUID)[0]
+        self.microbit.setDelegate(
+            AccelerometerDelegate(acc_data.handle, self.processData))
+
+        # enable gatt notifications for accelerometer data
+        ccc = acc_service.getDescriptors(CLIENT_CHARACTERISTICS_CONF_UUID)[0]
+        ccc.write(struct.pack('<H', 1), withResponse=True)
+
+    def waitForNotifications(self, timeout):
+        self.microbit.waitForNotifications(timeout)
 
 
 def main():
@@ -29,18 +54,11 @@ def main():
               'You can try `bluetoothctl scan on` or similar tools to find it')
         return
 
-    microbit = bluepy.btle.Peripheral(mac, 'random')
-
-    acc_service = microbit.getServiceByUUID(MB_ACCELEROMETER_SERVICE_UUID)
-    acc_data = acc_service.getDescriptors(MB_ACCELEROMETER_DATA_UUID)[0]
-    microbit.setDelegate(AccelerometerDelegate(acc_data.handle))
-
-    # enable notifications
-    ccc = acc_service.getDescriptors(CLIENT_CHARACTERISTICS_CONF_UUID)[0]
-    ccc.write(struct.pack('<H', 1), withResponse=True)
+    accelerometer = MicrobitAccelerometer(mac)
+    accelerometer.setNotifications()
 
     while True:
-        microbit.waitForNotifications(1.0)
+        accelerometer.waitForNotifications(1.0)
 
 
 if __name__ == '__main__':

@@ -1,3 +1,5 @@
 /microbit/build/
 /microbit/yotta_modules/
 /microbit/yotta_targets/
+__pycache__/
+*.py[co]
